@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>XComponent.Functions</id>
-    <version>$productVersion$</version>
+    <version>$version$</version>
     <authors>XComponent</authors>
     <owners>XComponent</owners>
     <title>XComponent Functions</title>
