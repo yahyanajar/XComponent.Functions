@@ -1,0 +1,82 @@
+#tool nuget:?package=NUnit.ConsoleRunner&version=3.4.0
+#tool "nuget:?package=ILRepack"
+//////////////////////////////////////////////////////////////////////
+// ARGUMENTS
+//////////////////////////////////////////////////////////////////////
+
+var target = Argument("target", "Default");
+var configuration = Argument("configuration", "Release");
+
+//////////////////////////////////////////////////////////////////////
+// PREPARATION
+//////////////////////////////////////////////////////////////////////
+
+// Define directories.
+var buildDir = Directory("./src/XComponent.Functions/bin") + Directory(configuration);
+
+//////////////////////////////////////////////////////////////////////
+// TASKS
+//////////////////////////////////////////////////////////////////////
+
+Task("Clean")
+    .Does(() =>
+{
+    CleanDirectory(buildDir);
+});
+
+Task("Restore-NuGet-Packages")
+    .IsDependentOn("Clean")
+    .Does(() =>
+{
+    NuGetRestore("./src/XComponent.Functions.sln");
+});
+
+Task("Build")
+    .IsDependentOn("Restore-NuGet-Packages")
+    .Does(() =>
+{
+    if(IsRunningOnWindows())
+    {
+      // Use MSBuild
+      MSBuild("./src/XComponent.Functions.sln", settings =>
+        settings.SetConfiguration(configuration));
+    }
+    else
+    {
+      // Use XBuild
+      XBuild("./src/XComponent.Functions.sln", settings =>
+        settings.SetConfiguration(configuration));
+    }
+});
+
+Task("Merge")
+  .IsDependentOn("Build")
+  .Does(() =>
+{
+
+	var binariesDir = "./src/XComponent.Functions/bin/" + configuration + "/";
+	var assemblyPaths = GetFiles(binariesDir + "*.dll");
+
+    var ilRepackSettings = new ILRepackSettings { Parallel = false, ArgumentCustomization = args => args.Append(@"/target:library /allowDup /internalize") };
+
+	ILRepack(
+		"./generated/XComponent.Functions.Core.dll",
+		binariesDir + "XComponent.Functions.dll",
+		assemblyPaths,
+    ilRepackSettings
+		);
+});
+
+
+//////////////////////////////////////////////////////////////////////
+// TASK TARGETS
+//////////////////////////////////////////////////////////////////////
+
+Task("Default")
+		.IsDependentOn("Merge");
+
+//////////////////////////////////////////////////////////////////////
+// EXECUTION
+//////////////////////////////////////////////////////////////////////
+
+RunTarget(target);
