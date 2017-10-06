@@ -3,3 +3,13 @@ image: Visual Studio 2015
 build_script:
 - cmd: PowerShell -Version 2.0 .\build.ps1
 test: off
+assembly_info:  
+  patch: true
+  file: '**\AssemblyInfo.*'
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}'
+artifacts:
+  - path: generated\*.dll
+    name: XComponent.Functions
+
