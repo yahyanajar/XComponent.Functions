@@ -14,6 +14,6 @@
     <tags>xcomponent microservices functions</tags>
   </metadata>
   <files>
-		<file src="..\..\generated\*.*" target="tools\XComponent.Functions" /> 
+		<file src="..\..\generated\*.*" target="" /> 
   </files>
 </package>
