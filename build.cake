@@ -67,13 +67,26 @@ Task("Merge")
 		);
 });
 
+Task("CreatePackage")
+    .IsDependentOn("Merge")
+    .Does(() =>
+    {
+		var assemblyInfo = ParseAssemblyInfo("src/XComponent.Functions/Properties/AssemblyInfo.cs");
+        var nugetPackSettings = new NuGetPackSettings()
+        { 
+            OutputDirectory = @"./generated",
+			Version = assemblyInfo.AssemblyVersion,
+        };
+
+        NuGetPack("src/XComponent.Functions/XComponent.Functions.nuspec", nugetPackSettings);
+    });
 
 //////////////////////////////////////////////////////////////////////
 // TASK TARGETS
 //////////////////////////////////////////////////////////////////////
 
 Task("Default")
-		.IsDependentOn("Merge");
+		.IsDependentOn("CreatePackage");
 
 //////////////////////////////////////////////////////////////////////
 // EXECUTION

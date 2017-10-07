@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>XComponent.Functions</id>
-    <version>$version$</version>
+	<version>1.0</version>
     <authors>XComponent</authors>
     <owners>XComponent</owners>
     <title>XComponent Functions</title>
@@ -14,6 +14,6 @@
     <tags>xcomponent microservices functions</tags>
   </metadata>
   <files>
-		<file src="generated\*.*" target="tools\XComponent.Functions" /> 
+		<file src="..\..\generated\*.*" target="tools\XComponent.Functions" /> 
   </files>
 </package>
