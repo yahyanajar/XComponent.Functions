@@ -10,12 +10,9 @@ namespace XComponent.Functions.WebApi
 {
     internal class Startup
     {
-        // This method is required by Katana:
         public void Configuration(IAppBuilder app)
         {
             var webApiConfiguration = ConfigureWebApi();
-
-            // Use the extension method provided by the WebApi.Owin library:
             app.UseWebApi(webApiConfiguration);
         }
 
@@ -23,7 +20,6 @@ namespace XComponent.Functions.WebApi
         {
             var config = new HttpConfiguration();
            
-            // Web API routes
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute("API Default", "api/{controller}/{id}", new { id = RouteParameter.Optional });
@@ -33,7 +29,7 @@ namespace XComponent.Functions.WebApi
                 {
                     c.RootUrl(req => req.RequestUri.GetLeftPart(UriPartial.Authority) + config.VirtualPathRoot.TrimEnd('/'));
 
-                    c.SingleApiVersion("v1", "XComponent Functions Rest API");
+                    c.SingleApiVersion("v1", "XComponent Functions  API");
                 }
             ).EnableSwaggerUi();
 

@@ -81,12 +81,14 @@
     <Compile Include="Core\Clone\DeepCopyExtension.cs" />
     <Compile Include="Core\Clone\ReferenceEqualityComparer.cs" />
     <Compile Include="Core\Clone\XCClone.cs" />
+    <Compile Include="Core\Exceptions\FunctionsFactoryException.cs" />
     <Compile Include="Core\FunctionParameter.cs" />
     <Compile Include="Core\FunctionResult.cs" />
     <Compile Include="Core\FunctionsFactory.cs" />
     <Compile Include="Core\FunctionsManager.cs" />
     <Compile Include="Core\FunctionsProtocol.cs" />
-    <Compile Include="Core\Initializer.cs" />
+    <Compile Include="Core\Owin\OwinServer.cs" />
+    <Compile Include="Core\Owin\OwinServerFactory.cs" />
     <Compile Include="Core\Senders\Senders.cs" />
     <Compile Include="Core\Senders\SenderWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -109,6 +111,6 @@
   </Target>
   <PropertyGroup>
     <PostBuildEvent>
-</PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

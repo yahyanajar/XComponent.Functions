@@ -14,7 +14,7 @@ namespace XComponent.Functions.Core
         public object Context { get; set; }
         public string ComponentName { get; set; }
         public string StateMachineName { get; set; }
-        public string StateName { get; set; }
+        public string FunctionName { get; set; }
         public string RequestId { get; set; } 
     }
 }

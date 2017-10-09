@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using XComponent.Functions.Core.Clone;
+using XComponent.Functions.Core.Owin;
 using XComponent.Functions.Core.Senders;
 using XComponent.Functions.Utilities;
 
@@ -9,7 +11,7 @@ namespace XComponent.Functions.Core
 {
     public class FunctionsManager: IDisposable
     {
-        private readonly Initializer _initializer = new Initializer();
+        private OwinServer _owinServerRef = null;
         private readonly ConcurrentQueue<FunctionParameter> _taskQueue = new ConcurrentQueue<FunctionParameter>();
 
         internal event Action<FunctionResult> NewTaskFunctionResult;
@@ -25,13 +27,13 @@ namespace XComponent.Functions.Core
         public string ComponentName { get;  }
         public string StateMachineName { get;  }
 
-        internal void InitManager(FunctionsProtocol protocol, string host = "127.0.0.1", int port = 9756)
+        internal void InitManager(Uri url)
         {
-            _initializer.InitService(protocol, host, port);
+            _owinServerRef = OwinServerFactory.CreateOwinServer(url);
         }
 
         public void AddTask(object xcEvent, object publicMember, object internalMember,
-            object context, object sender, string stateName)
+            object context, object sender, [CallerMemberName] string functionName = null)
         {
             RegisterSender(sender);
 
@@ -39,7 +41,7 @@ namespace XComponent.Functions.Core
                 publicMember,
                 internalMember,
                 context, ComponentName,
-                StateMachineName, stateName);
+                StateMachineName, functionName);
 
             string requestId = functionParameter.RequestId;
             _taskQueue.Enqueue(functionParameter);
@@ -112,7 +114,7 @@ namespace XComponent.Functions.Core
 
         public void Dispose()
         {
-            _initializer?.Dispose();
+            OwinServerFactory.UnRegisterOwinServer(_owinServerRef);
         }
     }
 }

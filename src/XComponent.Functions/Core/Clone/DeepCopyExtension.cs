@@ -101,7 +101,7 @@ namespace XComponent.Functions.Core.Clone
             {
                 if (filter != null && filter(fieldInfo) == false) continue;
                 if (ShouldCloneDeeply(fieldInfo.FieldType) && !copyAllFields) continue;
-                if (fieldInfo.GetCustomAttributes(typeof(System.NonSerializedAttribute), false).Length > 0) continue;
+                if (fieldInfo.GetCustomAttributes(typeof(NonSerializedAttribute), false).Length > 0) continue;
                 if (fieldInfo.GetCustomAttributes(typeof(System.Xml.Serialization.XmlIgnoreAttribute), false).Length >
                     0) continue;
                 var originalFieldValue = fieldInfo.GetValue(originalObject);

@@ -1,14 +1,18 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
+using XComponent.Functions.Core.Exceptions;
 
 namespace XComponent.Functions.Core
 {
 
     public static class FunctionsFactory
     {
+        public static readonly Uri DefaultUrl = new Uri("http://127.0.0.1:9676");
+
         private static readonly Dictionary<int, FunctionsManager> _functionsFactoryByKey = new Dictionary<int, FunctionsManager>();
 
-        public static FunctionsManager CreateFunctionsManager(string componentName, string stateMachineName, FunctionsProtocol protocol = FunctionsProtocol.http, string host = "127.0.0.1", int port = 9756)
+        public static FunctionsManager CreateFunctionsManager(string componentName, string stateMachineName, Uri url)
         {
 
             var functionsManager = new FunctionsManager(componentName, stateMachineName);
@@ -18,13 +22,14 @@ namespace XComponent.Functions.Core
                 int key = GetFunctionsManagerKey(componentName, stateMachineName);
                 if (_functionsFactoryByKey.ContainsKey(key))
                 {
-                    throw  new Exception("A function manager is already registered for: " + componentName + "," + stateMachineName);
+                    throw  new FunctionsFactoryException("A function manager is already registered for: " + componentName + "," + stateMachineName);
                 }
+
+                functionsManager.InitManager(url);
+
                 _functionsFactoryByKey.Add(key, functionsManager);
             }
-            functionsManager.InitManager(protocol, host, port);
 
-            
             return functionsManager;
         }
 

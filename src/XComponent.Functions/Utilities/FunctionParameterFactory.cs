@@ -5,7 +5,7 @@ namespace XComponent.Functions.Utilities
     internal static class FunctionParameterFactory
     {
         public static FunctionParameter CreateFunctionParameter(object xcEvent, object publicMember, object internalMember,
-            object context, string componentName, string stateMachineName, string stateName)
+            object context, string componentName, string stateMachineName, string functionName)
         {
             FunctionParameter functionParameter =
                 new FunctionParameter
@@ -16,7 +16,7 @@ namespace XComponent.Functions.Utilities
                     Context = context,
                     ComponentName = componentName,
                     StateMachineName = stateMachineName,
-                    StateName = stateName
+                    FunctionName = functionName
                 };
 
             return functionParameter;
