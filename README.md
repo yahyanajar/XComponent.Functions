@@ -6,6 +6,7 @@ XComponent Functions is used to take advantage of XComponent in any technologies
 
 [![Build status](https://ci.appveyor.com/api/projects/status/dsj723fkcacptuoq?svg=true)](https://ci.appveyor.com/project/fredericcarre/xcomponent-functions)
 [![XComponent.Functions Nuget](https://img.shields.io/nuget/v/XComponent.Functions.svg)]
+(https://www.nuget.org/packages/XComponent.Functions/)
 
 
 This library automatically exposes XComponent Triggered Methods to a Rest Endpoint. This way, Triggered methods can be implemented in any languages outside of Visual Studio. 
