@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using XComponent.Functions.Core.Clone;
 using XComponent.Functions.Core.Owin;
 using XComponent.Functions.Core.Senders;
@@ -32,7 +34,7 @@ namespace XComponent.Functions.Core
             _owinServerRef = OwinServerFactory.CreateOwinServer(url);
         }
 
-        public void AddTask(object xcEvent, object publicMember, object internalMember,
+        public Task AddTask(object xcEvent, object publicMember, object internalMember,
             object context, object sender, [CallerMemberName] string functionName = null)
         {
             RegisterSender(sender);
@@ -46,42 +48,52 @@ namespace XComponent.Functions.Core
             string requestId = functionParameter.RequestId;
             _taskQueue.Enqueue(functionParameter);
 
-            Action<FunctionResult> resultHandler = null;
-            resultHandler = delegate(FunctionResult result)
+            var task = Task.Run(() =>
             {
-                if (result.RequestId == requestId)
+                var autoResetEvent = new AutoResetEvent(false);
+
+                Action<FunctionResult> resultHandler = null;
+                resultHandler = delegate(FunctionResult result)
                 {
-                    NewTaskFunctionResult -= resultHandler;
-
-                    try
+                    if (result.RequestId == requestId)
                     {
-                       
-                        if (publicMember != null && result.PublicMember != null)
+                        NewTaskFunctionResult -= resultHandler;
+
+                        try
                         {
-                           var newPublicMember = SerializationHelper.DeserializeObjectFromType(publicMember.GetType(), result.PublicMember);
+                           
+                            if (publicMember != null && result.PublicMember != null)
+                            {
+                               var newPublicMember = SerializationHelper.DeserializeObjectFromType(publicMember.GetType(), result.PublicMember);
 
-                            XCClone.Clone(newPublicMember, publicMember);
+                                XCClone.Clone(newPublicMember, publicMember);
+                            }
+                            if (internalMember != null && result.InternalMember != null)
+                            {
+                                var newInternalMember = SerializationHelper.DeserializeObjectFromType(internalMember.GetType(), result.InternalMember);
+                                XCClone.Clone(newInternalMember, internalMember);
+                            }
                         }
-                        if (internalMember != null && result.InternalMember != null)
+                        catch (Exception e)
                         {
-                            var newInternalMember = SerializationHelper.DeserializeObjectFromType(internalMember.GetType(), result.InternalMember);
-                            XCClone.Clone(newInternalMember, internalMember);
+                            System.Diagnostics.Debug.WriteLine(e);
                         }
+
+                        lock (_senderWrapperBySender)
+                        {
+                            _senderWrapperBySender[sender].TriggerSender(result, context);
+                        }
+
+                        autoResetEvent.Set();
                     }
-                    catch (Exception e)
-                    {
+                };
 
-                    }
+                NewTaskFunctionResult += resultHandler;
 
-                    lock (_senderWrapperBySender)
-                    {
-                        _senderWrapperBySender[sender].TriggerSender(result, context);
-                    }
-                }
-            };
+                autoResetEvent.WaitOne();
+            });
 
-            NewTaskFunctionResult += resultHandler;
-
+            return task;
         }
 
         internal void AddTaskResult(FunctionResult functionResult)
