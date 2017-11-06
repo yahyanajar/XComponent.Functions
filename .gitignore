@@ -2,6 +2,7 @@
 [Bb]in/
 [Oo]bj/
 [Pp]ackages/
+generated/
 
 # Build related
 tools/**
