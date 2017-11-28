@@ -85,6 +85,7 @@
     <Compile Include="Core\FunctionParameter.cs" />
     <Compile Include="Core\FunctionResult.cs" />
     <Compile Include="Core\FunctionsFactory.cs" />
+    <Compile Include="Core\IFunctionsFactory.cs" />
     <Compile Include="Core\FunctionsManager.cs" />
     <Compile Include="Core\IFunctionsManager.cs" />
     <Compile Include="Core\FunctionsProtocol.cs" />

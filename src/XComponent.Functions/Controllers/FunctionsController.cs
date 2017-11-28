@@ -12,13 +12,13 @@ namespace XComponent.Functions.Controllers
         [SwaggerResponse(HttpStatusCode.NoContent, "No task available")]
         public HttpResponseMessage GetTask(string componentName, string stateMachineName)
         {
-            var response = FunctionsFactory.GetTask(componentName, stateMachineName);
+            var response = FunctionsFactory.Instance.GetTask(componentName, stateMachineName);
             return Request.CreateResponse<FunctionParameter>(response == null ? HttpStatusCode.NoContent : HttpStatusCode.OK, response);
         }
 
         public void PostTaskResult(FunctionResult result)
         {
-            FunctionsFactory.AddTaskResult(result);
+            FunctionsFactory.Instance.AddTaskResult(result);
         }
 
     }

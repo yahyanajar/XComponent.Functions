@@ -5,14 +5,30 @@ using XComponent.Functions.Core.Exceptions;
 
 namespace XComponent.Functions.Core
 {
-
-    public static class FunctionsFactory
+    public class FunctionsFactory : IFunctionsFactory
     {
         public static readonly Uri DefaultUrl = new Uri("http://127.0.0.1:9676");
 
+        internal static IFunctionsFactory instance;
+        internal static object syncRoot = new Object();
+
+        public static IFunctionsFactory Instance  
+        {
+            get {
+                if (instance == null) {
+                    lock (syncRoot) {
+                        instance = new FunctionsFactory();
+                    }
+                }
+                return instance;
+            }
+        }
+        
+        private FunctionsFactory() { }
+
         private static readonly Dictionary<int, IFunctionsManager> _functionsFactoryByKey = new Dictionary<int, IFunctionsManager>();
 
-        public static IFunctionsManager CreateFunctionsManager(string componentName, string stateMachineName, Uri url)
+        public IFunctionsManager CreateFunctionsManager(string componentName, string stateMachineName, Uri url)
         {
 
             var functionsManager = new FunctionsManager(componentName, stateMachineName);
@@ -33,7 +49,7 @@ namespace XComponent.Functions.Core
             return functionsManager;
         }
 
-        public static void UnRegisterFunctionsManager(IFunctionsManager functionManager)
+        public void UnRegisterFunctionsManager(IFunctionsManager functionManager)
         {
 
             lock (_functionsFactoryByKey)
@@ -47,7 +63,7 @@ namespace XComponent.Functions.Core
             }
         }
 
-        internal static FunctionParameter GetTask(string componentName, string stateMachineName)
+        public FunctionParameter GetTask(string componentName, string stateMachineName)
         {
             int key = GetFunctionsManagerKey(componentName, stateMachineName);
             lock (_functionsFactoryByKey)
@@ -61,7 +77,7 @@ namespace XComponent.Functions.Core
             return null;
         }
 
-        internal static void AddTaskResult(FunctionResult result)
+        public void AddTaskResult(FunctionResult result)
         {
             int key = GetFunctionsManagerKey(result.ComponentName, result.StateMachineName);
             lock (_functionsFactoryByKey)
