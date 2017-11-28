@@ -11,7 +11,7 @@ using XComponent.Functions.Utilities;
 
 namespace XComponent.Functions.Core
 {
-    public class FunctionsManager: IDisposable
+    public class FunctionsManager : IFunctionsManager
     {
         private OwinServer _owinServerRef = null;
         private readonly ConcurrentQueue<FunctionParameter> _taskQueue = new ConcurrentQueue<FunctionParameter>();
@@ -96,12 +96,12 @@ namespace XComponent.Functions.Core
             return task;
         }
 
-        internal void AddTaskResult(FunctionResult functionResult)
+        public void AddTaskResult(FunctionResult functionResult)
         {
             NewTaskFunctionResult?.Invoke(functionResult);
         }
 
-        internal FunctionParameter GetTask()
+        public FunctionParameter GetTask()
         {
             FunctionParameter functionParameter = null;
             if (_taskQueue.TryDequeue(out functionParameter))

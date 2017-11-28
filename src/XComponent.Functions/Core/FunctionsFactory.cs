@@ -10,9 +10,9 @@ namespace XComponent.Functions.Core
     {
         public static readonly Uri DefaultUrl = new Uri("http://127.0.0.1:9676");
 
-        private static readonly Dictionary<int, FunctionsManager> _functionsFactoryByKey = new Dictionary<int, FunctionsManager>();
+        private static readonly Dictionary<int, IFunctionsManager> _functionsFactoryByKey = new Dictionary<int, IFunctionsManager>();
 
-        public static FunctionsManager CreateFunctionsManager(string componentName, string stateMachineName, Uri url)
+        public static IFunctionsManager CreateFunctionsManager(string componentName, string stateMachineName, Uri url)
         {
 
             var functionsManager = new FunctionsManager(componentName, stateMachineName);
@@ -33,7 +33,7 @@ namespace XComponent.Functions.Core
             return functionsManager;
         }
 
-        public static void UnRegisterFunctionsManager(FunctionsManager functionManager)
+        public static void UnRegisterFunctionsManager(IFunctionsManager functionManager)
         {
 
             lock (_functionsFactoryByKey)
@@ -82,7 +82,8 @@ namespace XComponent.Functions.Core
             }
             return componentName.GetHashCode() ^ stateMachineName.GetHashCode();
         }
-        internal static int GetFunctionsManagerKey(FunctionsManager functionsManager)
+
+        internal static int GetFunctionsManagerKey(IFunctionsManager functionsManager)
         {
             return GetFunctionsManagerKey(functionsManager.ComponentName, functionsManager.StateMachineName);
         }
