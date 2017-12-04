@@ -34,8 +34,33 @@ namespace XComponent.Functions.Core
             _owinServerRef = OwinServerFactory.CreateOwinServer(url);
         }
 
-        public Task AddTask(object xcEvent, object publicMember, object internalMember,
-            object context, object sender, [CallerMemberName] string functionName = null)
+        public void ApplyFunctionResult(FunctionResult result, object publicMember, object internalMember, object context, object sender) {
+            try
+            {
+                if (publicMember != null && result.PublicMember != null)
+                {
+                   var newPublicMember = SerializationHelper.DeserializeObjectFromType(publicMember.GetType(), result.PublicMember);
+                    XCClone.Clone(newPublicMember, publicMember);
+                }
+                if (internalMember != null && result.InternalMember != null)
+                {
+                    var newInternalMember = SerializationHelper.DeserializeObjectFromType(internalMember.GetType(), result.InternalMember);
+                    XCClone.Clone(newInternalMember, internalMember);
+                }
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(e);
+            }
+
+            lock (_senderWrapperBySender)
+            {
+                _senderWrapperBySender[sender].TriggerSender(result, context);
+            }
+        }
+
+        public Task<FunctionResult> AddTaskAsync(object xcEvent, object publicMember, object internalMember,
+            object context, object sender, [CallerMemberName] string functionName = null) 
         {
             RegisterSender(sender);
 
@@ -45,55 +70,40 @@ namespace XComponent.Functions.Core
                 context, ComponentName,
                 StateMachineName, functionName);
 
-            string requestId = functionParameter.RequestId;
+            var requestId = functionParameter.RequestId;
+            FunctionResult functionResult = null;
+            
+            var autoResetEvent = new AutoResetEvent(false);
+
+            Action<FunctionResult> resultHandler = null;
+            resultHandler = delegate(FunctionResult result)
+            {
+                if (result.RequestId == requestId)
+                {
+                    NewTaskFunctionResult -= resultHandler;
+                    functionResult = result;
+                    autoResetEvent.Set();
+                }
+            };
+
+            NewTaskFunctionResult += resultHandler;
+
             _taskQueue.Enqueue(functionParameter);
 
-            var task = Task.Run(() =>
+            return Task.Run(() =>
             {
-                var autoResetEvent = new AutoResetEvent(false);
-
-                Action<FunctionResult> resultHandler = null;
-                resultHandler = delegate(FunctionResult result)
-                {
-                    if (result.RequestId == requestId)
-                    {
-                        NewTaskFunctionResult -= resultHandler;
-
-                        try
-                        {
-                           
-                            if (publicMember != null && result.PublicMember != null)
-                            {
-                               var newPublicMember = SerializationHelper.DeserializeObjectFromType(publicMember.GetType(), result.PublicMember);
-
-                                XCClone.Clone(newPublicMember, publicMember);
-                            }
-                            if (internalMember != null && result.InternalMember != null)
-                            {
-                                var newInternalMember = SerializationHelper.DeserializeObjectFromType(internalMember.GetType(), result.InternalMember);
-                                XCClone.Clone(newInternalMember, internalMember);
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            System.Diagnostics.Debug.WriteLine(e);
-                        }
-
-                        lock (_senderWrapperBySender)
-                        {
-                            _senderWrapperBySender[sender].TriggerSender(result, context);
-                        }
-
-                        autoResetEvent.Set();
-                    }
-                };
-
-                NewTaskFunctionResult += resultHandler;
-
                 autoResetEvent.WaitOne();
+                return functionResult;
             });
+        }
 
-            return task;
+        public Task AddTask(object xcEvent, object publicMember, object internalMember,
+            object context, object sender, [CallerMemberName] string functionName = null)
+        {
+            return AddTaskAsync(xcEvent, publicMember, internalMember, context, sender, functionName)
+                    .ContinueWith((taskResult) => {
+                        ApplyFunctionResult(taskResult.Result, publicMember, internalMember, context, sender);
+                    });
         }
 
         public void AddTaskResult(FunctionResult functionResult)
@@ -122,7 +132,6 @@ namespace XComponent.Functions.Core
                 }
             }
         }
-
 
         public void Dispose()
         {

@@ -31,6 +31,13 @@ Task("Restore-NuGet-Packages")
     NuGetRestore("./src/XComponent.Functions.sln");
 });
 
+Task("Test")
+  .IsDependentOn("Build")
+  .Does(() =>
+  {
+    NUnit3(GetFiles("./**/bin/" + configuration + "/*Test*.dll"));	
+  });
+
 Task("Build")
     .IsDependentOn("Restore-NuGet-Packages")
     .Does(() =>
