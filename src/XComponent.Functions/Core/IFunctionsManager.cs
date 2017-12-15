@@ -11,5 +11,7 @@ namespace XComponent.Functions.Core
         Task AddTask(object xcEvent, object publicMember, object internalMember, object context, object sender, [CallerMemberName] string functionName = null);
         FunctionParameter GetTask();
         void AddTaskResult(FunctionResult functionResult);
+        void ApplyFunctionResult(FunctionResult result, object publicMember, object internalMember, object context, object sender);
+        Task<FunctionResult> AddTaskAsync(object xcEvent, object publicMember, object internalMember, object context, object sender, [CallerMemberName] string functionName = null);
     }
 }
