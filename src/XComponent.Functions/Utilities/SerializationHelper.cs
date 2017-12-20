@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reflection;
 using Newtonsoft.Json;
 
@@ -20,6 +21,7 @@ namespace XComponent.Functions.Utilities
             }
             catch (Exception e)
             {
+                Debug.WriteLine(e);
             }
 
             return null;
@@ -37,7 +39,7 @@ namespace XComponent.Functions.Utilities
             }
             catch (Exception e)
             {
-               
+                Debug.WriteLine(e);
             }
             return null;
         }
@@ -53,11 +55,11 @@ namespace XComponent.Functions.Utilities
                 return typeof(SerializationHelper).GetMethod(nameof(DeserializeObject),
                         BindingFlags.Public | BindingFlags.Static)
                     .MakeGenericMethod(new[] { objType })
-                    .Invoke(null, new[] { objectToDeserialize });
+                    .Invoke(null, new[] { objectToDeserialize.ToString() });
             }
             catch (Exception e)
             {
-               
+                Debug.WriteLine(e);
             }
 
             return null;

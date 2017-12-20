@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using XComponent.Functions.Core;
+using Newtonsoft.Json.Linq;
 
 namespace XComponent.Functions.Test
 {
@@ -13,6 +15,11 @@ namespace XComponent.Functions.Test
     [TestFixture]
     public class FunctionsManagerTest
     {
+
+        [SetUp]
+        public void SetUp() {
+           Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
+        }
 
         [Test]
         public void AddTaskShouldPutTaskOnQueue() {
@@ -109,6 +116,27 @@ namespace XComponent.Functions.Test
             await task;
 
             Assert.AreEqual("after", publicMember.State);
+        }
+
+        [Test]
+        public void ApplyPostedResultShouldWorkWithJObjects() {
+            var publicMemberBefore = new PublicMember() { State = "before" };
+
+            var publicMemberAfter = new JObject();
+            publicMemberAfter.Add("State", new JValue("after"));
+
+            var functionResult = new FunctionResult() {
+                PublicMember = publicMemberAfter,
+            };
+
+            var functionsManager = new FunctionsManager("component", "statemachine");
+            functionsManager.ApplyFunctionResult(functionResult,
+                    publicMemberBefore,
+                    null,
+                    new object(),
+                    new object());
+
+            Assert.AreEqual("after", publicMemberBefore.State);
         }
     }
 }

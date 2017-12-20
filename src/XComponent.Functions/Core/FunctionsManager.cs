@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -55,7 +56,11 @@ namespace XComponent.Functions.Core
 
             lock (_senderWrapperBySender)
             {
-                _senderWrapperBySender[sender].TriggerSender(result, context);
+                if (_senderWrapperBySender.ContainsKey(sender)) {
+                    _senderWrapperBySender[sender].TriggerSender(result, context);
+                } else {
+                    Debug.WriteLine("Sender received from worker not found in dictionary");
+                }
             }
         }
 
