@@ -49,10 +49,9 @@ namespace XComponent.Functions.Core.Senders
 
         public void TriggerSender(FunctionResult functionResult, object context)
         {
-            if (functionResult.Sender != null &&
-                !string.IsNullOrEmpty(functionResult.Sender.SenderName))
+            if (!string.IsNullOrEmpty(functionResult.Sender?.SenderName))
             {
-                var obj = functionResult.Sender.SenderParameter != null
+                var obj = !string.IsNullOrEmpty(functionResult.Sender.SenderParameter?.ToString())
                     ? SerializationHelper.DeserializeObjectFromType(_senderTypeBySenderName[functionResult.Sender.SenderName], functionResult.Sender.SenderParameter)
                     : Activator.CreateInstance(_senderTypeBySenderName[functionResult.Sender.SenderName]);
 
