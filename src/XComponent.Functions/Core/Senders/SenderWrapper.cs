@@ -52,7 +52,7 @@ namespace XComponent.Functions.Core.Senders
             if (functionResult.Sender != null &&
                 !string.IsNullOrEmpty(functionResult.Sender.SenderName))
             {
-                var obj = !string.IsNullOrEmpty(functionResult.Sender.SenderParameter)
+                var obj = functionResult.Sender.SenderParameter != null
                     ? SerializationHelper.DeserializeObjectFromType(_senderTypeBySenderName[functionResult.Sender.SenderName], functionResult.Sender.SenderParameter)
                     : Activator.CreateInstance(_senderTypeBySenderName[functionResult.Sender.SenderName]);
 
