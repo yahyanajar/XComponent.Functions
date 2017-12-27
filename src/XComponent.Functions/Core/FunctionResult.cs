@@ -1,4 +1,5 @@
-﻿using XComponent.Functions.Core.Senders;
+﻿using System.Collections.Generic;
+using XComponent.Functions.Core.Senders;
 
 namespace XComponent.Functions.Core
 {
@@ -8,7 +9,7 @@ namespace XComponent.Functions.Core
         public string StateMachineName { get; set; }
         public object PublicMember { get; set; }
         public object InternalMember { get; set; }
-        public SenderResult Sender { get; set; }
+        public List<SenderResult> Senders { get; set; }
         public string RequestId { get; set; }
 
     }
