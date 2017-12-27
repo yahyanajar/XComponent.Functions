@@ -49,25 +49,27 @@ namespace XComponent.Functions.Core.Senders
 
         public void TriggerSender(FunctionResult functionResult, object context)
         {
-            var sender = functionResult.Senders?.FirstOrDefault();
-            if (sender != null && !string.IsNullOrEmpty(sender.SenderName))
+            foreach (var sender in functionResult.Senders)
             {
-                var obj = !string.IsNullOrEmpty(functionResult.Senders.FirstOrDefault()?.SenderParameter?.ToString())
-                    ? SerializationHelper.DeserializeObjectFromType(_senderTypeBySenderName[sender.SenderName], functionResult.Senders.FirstOrDefault()?.SenderParameter)
-                    : Activator.CreateInstance(_senderTypeBySenderName[sender.SenderName]);
+                if (!string.IsNullOrEmpty(sender?.SenderName))
+                {
+                    var obj = !string.IsNullOrEmpty(sender.SenderParameter?.ToString())
+                        ? SerializationHelper.DeserializeObjectFromType(_senderTypeBySenderName[sender.SenderName], sender.SenderParameter)
+                        : Activator.CreateInstance(_senderTypeBySenderName[sender.SenderName]);
 
-                if (sender.UseContext)
-                {
-                    var method = _sendersList.FirstOrDefault(e => e.SenderParameterCollection.Count() == 3 
-                                                                && e.Name == sender.SenderName);
-                    method?.MethodInfo.Invoke(_sender, new[] { context, obj, null });
-                }
-                else
-                {
-                    var method = _sendersList.FirstOrDefault(e => e.Name == SendEvent &&
-                                                           e.SenderParameterCollection.Count() == 1
-                                                           && e.SenderParameterCollection.Any(p => p.Type.IsAssignableFrom(_senderTypeBySenderName[sender.SenderName])) && e.Name == "SendEvent");
-                    method?.MethodInfo.Invoke(_sender, new[] { obj });
+                    if (sender.UseContext)
+                    {
+                        var method = _sendersList.FirstOrDefault(e => e.SenderParameterCollection.Count() == 3
+                                                                      && e.Name == sender.SenderName);
+                        method?.MethodInfo.Invoke(_sender, new[] { context, obj, null });
+                    }
+                    else
+                    {
+                        var method = _sendersList.FirstOrDefault(e => e.Name == SendEvent &&
+                                                                      e.SenderParameterCollection.Count() == 1
+                                                                      && e.SenderParameterCollection.Any(p => p.Type.IsAssignableFrom(_senderTypeBySenderName[sender.SenderName])) && e.Name == "SendEvent");
+                        method?.MethodInfo.Invoke(_sender, new[] { obj });
+                    }
                 }
             }
         }
