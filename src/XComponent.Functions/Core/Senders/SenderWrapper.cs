@@ -49,6 +49,8 @@ namespace XComponent.Functions.Core.Senders
 
         public void TriggerSender(FunctionResult functionResult, object context)
         {
+            if (functionResult.Senders == null) return;
+
             foreach (var sender in functionResult.Senders)
             {
                 if (!string.IsNullOrEmpty(sender?.SenderName))
