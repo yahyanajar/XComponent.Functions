@@ -49,23 +49,24 @@ namespace XComponent.Functions.Core.Senders
 
         public void TriggerSender(FunctionResult functionResult, object context)
         {
-            if (!string.IsNullOrEmpty(functionResult.Sender?.SenderName))
+            var sender = functionResult.Senders?.FirstOrDefault();
+            if (sender != null && !string.IsNullOrEmpty(sender.SenderName))
             {
-                var obj = !string.IsNullOrEmpty(functionResult.Sender.SenderParameter?.ToString())
-                    ? SerializationHelper.DeserializeObjectFromType(_senderTypeBySenderName[functionResult.Sender.SenderName], functionResult.Sender.SenderParameter)
-                    : Activator.CreateInstance(_senderTypeBySenderName[functionResult.Sender.SenderName]);
+                var obj = !string.IsNullOrEmpty(functionResult.Senders.FirstOrDefault()?.SenderParameter?.ToString())
+                    ? SerializationHelper.DeserializeObjectFromType(_senderTypeBySenderName[sender.SenderName], functionResult.Senders.FirstOrDefault()?.SenderParameter)
+                    : Activator.CreateInstance(_senderTypeBySenderName[sender.SenderName]);
 
-                if (functionResult.Sender.UseContext)
+                if (sender.UseContext)
                 {
                     var method = _sendersList.FirstOrDefault(e => e.SenderParameterCollection.Count() == 3 
-                                                                && e.Name == functionResult.Sender.SenderName);
+                                                                && e.Name == sender.SenderName);
                     method?.MethodInfo.Invoke(_sender, new[] { context, obj, null });
                 }
                 else
                 {
                     var method = _sendersList.FirstOrDefault(e => e.Name == SendEvent &&
                                                            e.SenderParameterCollection.Count() == 1
-                                                           && e.SenderParameterCollection.Any(p => p.Type.IsAssignableFrom(_senderTypeBySenderName[functionResult.Sender.SenderName])) && e.Name == "SendEvent");
+                                                           && e.SenderParameterCollection.Any(p => p.Type.IsAssignableFrom(_senderTypeBySenderName[sender.SenderName])) && e.Name == "SendEvent");
                     method?.MethodInfo.Invoke(_sender, new[] { obj });
                 }
             }

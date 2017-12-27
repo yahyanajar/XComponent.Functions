@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using XComponent.Functions.Core;
 using Newtonsoft.Json.Linq;
+using NSubstitute;
+using XComponent.Functions.Core.Senders;
 
 namespace XComponent.Functions.Test
 {
@@ -53,7 +53,7 @@ namespace XComponent.Functions.Test
             var publicMember = new object();
             var internalMember = new object();
             var context = new object();
-            var sender = new object();
+            var sender = Substitute.For<ISender>();
 
             var task = functionsManager.AddTaskAsync(xcEvent, publicMember, internalMember, context, sender, "function");
 
@@ -64,7 +64,7 @@ namespace XComponent.Functions.Test
                 StateMachineName = "statemachine",
                 PublicMember = "{}",
                 InternalMember = "{}",
-                Sender = null,
+                Senders = new List<SenderResult> {new SenderResult {SenderName = "Do"}, new SenderResult { SenderName = "Undo" } },
                 RequestId = enqueuedParameter.RequestId,
             };
 
@@ -102,7 +102,7 @@ namespace XComponent.Functions.Test
                             StateMachineName = "statemachine",
                             PublicMember = "{ \"State\": \"after\" }",
                             InternalMember = "{}",
-                            Sender = null,
+                            Senders = null,
                             RequestId = postedTask.RequestId,
                         };
                         functionsManager.AddTaskResult(functionResult);
@@ -137,6 +137,12 @@ namespace XComponent.Functions.Test
                     new object());
 
             Assert.AreEqual("after", publicMemberBefore.State);
+        }
+
+        public interface ISender
+        {
+            void Do();
+            void Undo();
         }
     }
 }
