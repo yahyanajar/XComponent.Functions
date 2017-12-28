@@ -67,9 +67,9 @@ namespace XComponent.Functions.Core.Senders
                     }
                     else
                     {
-                        var method = _sendersList.FirstOrDefault(e => e.Name == SendEvent &&
-                                                                      e.SenderParameterCollection.Count() == 1
-                                                                      && e.SenderParameterCollection.Any(p => p.Type.IsAssignableFrom(_senderTypeBySenderName[sender.SenderName])) && e.Name == "SendEvent");
+                        var method = _sendersList.FirstOrDefault(e => e.Name == SendEvent 
+                                            && e.SenderParameterCollection.Count() == 1
+                                            && e.SenderParameterCollection.Any(p => p.Type.IsAssignableFrom(_senderTypeBySenderName[sender.SenderName])));
                         method?.MethodInfo.Invoke(_sender, new[] { obj });
                     }
                 }
