@@ -64,7 +64,7 @@ namespace XComponent.Functions.Test
                 StateMachineName = "statemachine",
                 PublicMember = "{}",
                 InternalMember = "{}",
-                Senders = new List<SenderResult> {new SenderResult {SenderName = "Do"}, new SenderResult { SenderName = "Undo" } },
+                Senders = null,
                 RequestId = enqueuedParameter.RequestId,
             };
 
