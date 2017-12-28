@@ -64,6 +64,7 @@ namespace XComponent.Functions.Test
                 StateMachineName = "statemachine",
                 PublicMember = "{}",
                 InternalMember = "{}",
+                Senders = null,
                 RequestId = enqueuedParameter.RequestId,
             };
 
@@ -90,6 +91,7 @@ namespace XComponent.Functions.Test
         {
             void Do(object context, DoEvent transitionEvent, string privateTopic);
             void Undo(object context, UndoEvent transitionEvent, string privateTopic);
+            void Reply(object context, object transitionEvent, string privateTopic);
             void SendEvent(DoEvent evt);
             void SendEvent(UndoEvent evt);
         }
@@ -130,7 +132,12 @@ namespace XComponent.Functions.Test
                                     SenderName = "Undo",
                                     SenderParameter =  "{ \"Value\": \"undo\" }",
                                     UseContext = false
-                                } 
+                                },
+                                new SenderResult
+                                {
+                                    SenderName = "Reply",
+                                    UseContext = true
+                                }
                             },
                             RequestId = postedTask.RequestId,
                         };
@@ -147,6 +154,7 @@ namespace XComponent.Functions.Test
             Assert.AreEqual("after", publicMember.State);
             sender.Received().Do(context, Arg.Is<DoEvent>(evt => evt.Value == "do"), null);
             sender.Received().SendEvent(Arg.Is<UndoEvent>(evt => evt.Value == "undo"));
+            sender.Received().Reply(context, Arg.Any<object>(), null);
         }
 
         [Test]
@@ -169,6 +177,5 @@ namespace XComponent.Functions.Test
 
             Assert.AreEqual("after", publicMemberBefore.State);
         }
-
     }
 }
