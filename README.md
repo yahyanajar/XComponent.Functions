@@ -65,16 +65,18 @@ This REST API exposes two methods:
   "StateMachineName": "string",
   "PublicMember": {},
   "InternalMember": {},
-  "Sender": {
-    "SenderName": "string",
-    "SenderParameter": "string",
-    "UseContext": true
-  },
+  "Senders": [
+      {
+        "SenderName": "string",
+        "SenderParameter": "string",
+        "UseContext": true
+      }
+   ],
   "RequestId": "string"
 }
 ```
 
-> the Public Member and Internal Member of the state mamchine instance can be modified this way. You can also call a sender method by providing its name and parameter in the `Senders` field.
+> the Public Member and Internal Member of the state mamchine instance can be modified this way. You can also call one or more sender methods by providing, for each of them, its name and parameter in the `Senders` field.
 
 
 

@@ -78,16 +78,32 @@ namespace XComponent.Functions.Test
         private class PublicMember {
             public string State { get; set; }
         }
-        
+
+        public class DoEvent {
+            public string Value { get; set; }
+        }
+
+        public class UndoEvent {
+            public string Value { get; set; }
+        }
+
+        public interface ISender
+        {
+            void Do(object context, DoEvent transitionEvent, string privateTopic);
+            void Undo(object context, UndoEvent transitionEvent, string privateTopic);
+            void SendEvent(DoEvent evt);
+            void SendEvent(UndoEvent evt);
+        }
+
         [Test]
-        public async Task AddTaskShouldApplyPostedResult() {
+        public async Task AddTaskShouldApplyPostedResultAndCallSenders() {
             var functionsManager = new FunctionsManager("component", "statemachine");
 
             var xcEvent = new object();
             var publicMember = new PublicMember() { State = "before" };
             var internalMember = new object();
             var context = new object();
-            var sender = new object();
+            var sender = Substitute.For<ISender>();
 
             var task = functionsManager.AddTask(xcEvent, publicMember, internalMember, context, sender, "function");
 
@@ -102,7 +118,21 @@ namespace XComponent.Functions.Test
                             StateMachineName = "statemachine",
                             PublicMember = "{ \"State\": \"after\" }",
                             InternalMember = "{}",
-                            Senders = null,
+                            Senders = new List<SenderResult> 
+                            {
+                                new SenderResult 
+                                {
+                                    SenderName = "Do",
+                                    SenderParameter =  "{ \"Value\": \"do\" }",
+                                    UseContext = true
+                                },
+                                new SenderResult
+                                { 
+                                    SenderName = "Undo",
+                                    SenderParameter =  "{ \"Value\": \"undo\" }",
+                                    UseContext = false
+                                } 
+                            },
                             RequestId = postedTask.RequestId,
                         };
                         functionsManager.AddTaskResult(functionResult);
@@ -116,6 +146,8 @@ namespace XComponent.Functions.Test
             await task;
 
             Assert.AreEqual("after", publicMember.State);
+            sender.Received().Do(context, Arg.Is<DoEvent>(evt => evt.Value == "do"), null);
+            sender.Received().SendEvent(Arg.Is<UndoEvent>(evt => evt.Value == "undo"));
         }
 
         [Test]
@@ -137,12 +169,6 @@ namespace XComponent.Functions.Test
                     new object());
 
             Assert.AreEqual("after", publicMemberBefore.State);
-        }
-
-        public interface ISender
-        {
-            void Do();
-            void Undo();
         }
     }
 }
