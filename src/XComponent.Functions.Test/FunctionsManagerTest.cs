@@ -8,7 +8,6 @@ using NUnit.Framework;
 using XComponent.Functions.Core;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 using XComponent.Functions.Core.Senders;
 
 namespace XComponent.Functions.Test
