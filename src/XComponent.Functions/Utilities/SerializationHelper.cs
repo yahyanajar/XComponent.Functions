@@ -40,7 +40,7 @@ namespace XComponent.Functions.Utilities
             }
             catch (Exception e)
             {
-                throw new SerializationException($"Couldn't serialize object {obj} : {e}");
+                throw new SerializationException($"Couldn't serialize object {obj}",e );
             }
         }
 
@@ -59,7 +59,7 @@ namespace XComponent.Functions.Utilities
             }
             catch (Exception e)
             {
-                throw new SerializationException($"Couldn't deserialize object from {objType} : {e}");
+                throw new SerializationException($"Couldn't deserialize object from {objType}", e);
             }
         }
     }

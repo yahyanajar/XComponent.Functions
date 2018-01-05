@@ -207,9 +207,6 @@ namespace XComponent.Functions.Test
         [Test]
         public void ApplyFunctionResultShouldThrowSenderNotFoundException()
         {
-            var publicMemberAfter = new JObject();
-            publicMemberAfter.Add("State", new JValue("after"));
-
             var functionsManager = new FunctionsManager("component", "statemachine");
 
             Assert.Throws<Exception>(() => functionsManager.ApplyFunctionResult(null,

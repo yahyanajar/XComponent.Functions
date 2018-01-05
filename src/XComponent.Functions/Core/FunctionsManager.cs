@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using XComponent.Functions.Core.Clone;
@@ -15,7 +13,7 @@ namespace XComponent.Functions.Core
 {
     public class FunctionsManager : IFunctionsManager
     {
-        private OwinServer _owinServerRef = null;
+        private OwinServer _owinServerRef;
         private readonly ConcurrentQueue<FunctionParameter> _taskQueue = new ConcurrentQueue<FunctionParameter>();
 
         internal event Action<FunctionResult> NewTaskFunctionResult;
