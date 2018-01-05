@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using XComponent.Functions.Core.Clone;
@@ -36,30 +37,24 @@ namespace XComponent.Functions.Core
         }
 
         public void ApplyFunctionResult(FunctionResult result, object publicMember, object internalMember, object context, object sender) {
-            try
-            {
-                if (publicMember != null && result.PublicMember != null)
-                {
-                   var newPublicMember = SerializationHelper.DeserializeObjectFromType(publicMember.GetType(), result.PublicMember);
-                    XCClone.Clone(newPublicMember, publicMember);
-                }
-                if (internalMember != null && result.InternalMember != null)
-                {
-                    var newInternalMember = SerializationHelper.DeserializeObjectFromType(internalMember.GetType(), result.InternalMember);
-                    XCClone.Clone(newInternalMember, internalMember);
-                }
-            }
-            catch (Exception e)
-            {
-                System.Diagnostics.Debug.WriteLine(e);
-            }
 
+            if (publicMember != null && result.PublicMember != null)
+            {
+                var newPublicMember = SerializationHelper.DeserializeObjectFromType(publicMember.GetType(), result.PublicMember);
+                XCClone.Clone(newPublicMember, publicMember);
+            }
+            if (internalMember != null && result.InternalMember != null)
+            {
+                var newInternalMember = SerializationHelper.DeserializeObjectFromType(internalMember.GetType(), result.InternalMember);
+                XCClone.Clone(newInternalMember, internalMember);
+            }
+            
             lock (_senderWrapperBySender)
             {
                 if (_senderWrapperBySender.ContainsKey(sender)) {
                     _senderWrapperBySender[sender].TriggerSender(result, context);
                 } else {
-                    Debug.WriteLine("Sender received from worker not found in dictionary");
+                    throw new Exception("Sender received from worker not found in dictionary");
                 }
             }
         }

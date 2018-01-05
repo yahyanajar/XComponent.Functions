@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using XComponent.Functions.Core;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using XComponent.Functions.Core.Senders;
 
 namespace XComponent.Functions.Test
@@ -118,7 +120,6 @@ namespace XComponent.Functions.Test
                             ComponentName = "component",
                             StateMachineName = "statemachine",
                             PublicMember = "{ \"State\": \"after\" }",
-                            InternalMember = "{}",
                             Senders = new List<SenderResult> 
                             {
                                 new SenderResult 
@@ -168,14 +169,54 @@ namespace XComponent.Functions.Test
                 PublicMember = publicMemberAfter,
             };
 
+            var sender = new object(); 
+            var context = new object();
             var functionsManager = new FunctionsManager("component", "statemachine");
+            functionsManager.AddTask(null, null, null, context, sender);
             functionsManager.ApplyFunctionResult(functionResult,
                     publicMemberBefore,
                     null,
-                    new object(),
-                    new object());
+                    context,
+                    sender);
 
             Assert.AreEqual("after", publicMemberBefore.State);
+        }
+
+        [Test]
+        public void ApplyFunctionResultShouldThrowSerializationException()
+        {
+            var publicMemberBefore = new PublicMember() { State = "before" };
+
+            var publicMemberAfter = new JObject();
+            publicMemberAfter.Add("State", new JValue("after"));
+
+            var functionResult = new FunctionResult()
+            {
+                PublicMember = "Hello",
+            };
+
+            var functionsManager = new FunctionsManager("component", "statemachine");
+            
+            Assert.Throws<SerializationException>(() => functionsManager.ApplyFunctionResult(functionResult,
+                publicMemberBefore,
+                null,
+                new object(),
+                new object()));
+        }
+
+        [Test]
+        public void ApplyFunctionResultShouldThrowSenderNotFoundException()
+        {
+            var publicMemberAfter = new JObject();
+            publicMemberAfter.Add("State", new JValue("after"));
+
+            var functionsManager = new FunctionsManager("component", "statemachine");
+
+            Assert.Throws<Exception>(() => functionsManager.ApplyFunctionResult(null,
+                null,
+                null,
+                new object(),
+                new object()));
         }
     }
 }
